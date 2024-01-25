@@ -6,12 +6,13 @@ import {
   type CacheType,
 } from 'discord.js'
 import ping from './src/commands/utility/ping'
-import server from './src/commands/utility/server'
+import token from './src/commands/utility/token'
 
 declare module 'discord.js' {
-  type Commands = typeof ping | typeof server
+  type Commands = typeof ping | typeof token
 
   export interface GuessOutput<P> {
+    cooldown?: number
     data: SlashCommandBuilder
     execute: (interaction: ChatInputCommandInteraction<CacheType>) => Promise<P>
   }
@@ -30,12 +31,16 @@ declare module 'discord.js' {
   >
 
   export class SlashCommandBuilder implements BaseSlashCommandBuilder {
-    setName<const T>(name: T): this & { name: T }
-    setDescription<const T>(name: T): this & { description: T }
+    setName<const T>(name: T): this & Readonly<{ name: T }>
+    setDescription<const T>(name: T): this & Readonly<{ description: T }>
   }
 
   export interface Client extends BaseClient {
     commands: GotPromises
+    cooldowns: Collection<
+      CommandsUnwrapped['data']['name'],
+      Collection<string, number>
+    >
   }
 
   type SetsProps<T> = {
