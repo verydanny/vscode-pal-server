@@ -7,6 +7,7 @@ import {
 } from 'discord.js'
 import ping from './src/commands/utility/ping'
 import token from './src/commands/utility/token'
+import { CooldownManager } from './src/cooldownManager'
 
 declare module 'discord.js' {
   type Commands = typeof ping | typeof token
@@ -24,7 +25,7 @@ declare module 'discord.js' {
       P
     : never
 
-  type CommandsUnwrapped = GuessOutput<PromiseTypeCommand<Commands>>
+  export type CommandsUnwrapped = GuessOutput<PromiseTypeCommand<Commands>>
   type GotPromises = Collection<
     CommandsUnwrapped['data']['name'],
     CommandsUnwrapped
@@ -37,10 +38,7 @@ declare module 'discord.js' {
 
   export interface Client extends BaseClient {
     commands: GotPromises
-    cooldowns: Collection<
-      CommandsUnwrapped['data']['name'],
-      Collection<string, number>
-    >
+    cooldowns: CooldownManager
   }
 
   type SetsProps<T> = {
